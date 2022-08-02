@@ -1,0 +1,957 @@
+---
+title: "How Weedios is being portrayed on YouTube 2016-2020"
+fontsize: 18pt
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  word_document:
+    toc: yes
+  pdf_document:  
+    toc: yes
+    toc_depth: 3
+font-family: Arial
+theme: united
+---
+
+
+<style>
+  
+#TOC {
+ position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100%;
+  overflow:auto;
+}
+body {
+  max-width: 1200px;
+  margin: auto;
+  margin-left:150px;
+  line-height: 20px;
+}
+h1.title {
+    font-size: 28px;
+}
+h4 {
+    font-size: 20px;
+}
+h3 {
+    font-size: 24px;
+}
+h2 {
+    font-size: 25px;
+}
+h1 {
+    font-size: 26px;
+}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 28%;
+}
+.table {
+    width: 40%;
+}
+
+.btn {
+    border-width: 0 0px 0px 0px;
+    font-weight: normal;
+    text-transform: ;
+}
+.btn-default {
+    color: #2ecc71;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+</style>
+
+<hr>
+<br>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+youtube <- read.csv("/Users/s4626133/Dropbox/1_PhD/2_Youtube analysis/04_final analysis/01_CleanedDataset_05052020.csv")
+youtube1<-youtube
+density1 <- read.csv("/Users/s4626133/Dropbox/1_PhD/2_Youtube analysis/04_final analysis/01_Density_05052020.csv")
+#https://www.datasciencecentral.com/profiles/blogs/find-out-what-celebrities-tweet-about-the-most-1
+```
+
+```{r libraries, echo = FALSE, warning = FALSE, include = FALSE}
+library(ggplot2)
+library(DT)
+library(dplyr)
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(RColorBrewer)
+library(hrbrthemes)
+library(ggridges)
+library(viridis)
+library(car)
+library(robustbase)
+```
+
+# Dataset
+```{r datavie, echo=FALSE}
+datatable(youtube1)
+```
+
+<br>
+
+# Advertisement
+<hr>
+<br>
+
+```{r advert, echo=FALSE}
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(advertisement) %>%
+  filter(advertisement==1)
+
+youtube1 %>%
+  group_by(year) %>%
+  count(advertisement) %>%
+  filter(advertisement==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(advertisement) %>%
+  filter(advertisement==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(advertisement) %>%
+  filter(advertisement==1)
+youtube1 %>%
+  filter(advertisement==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(advertisement==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(advertisement==1) %>%
+  summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments))
+ 
+
+
+```
+
+# Product review
+<hr>
+<br>
+
+```{r productreview, echo=FALSE}
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(product.review) %>%
+  filter(product.review==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(product.review) %>%
+  filter(product.review==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(product.review) %>%
+  filter(product.review==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(product.review) %>%
+  filter(product.review==1)
+youtube1 %>%
+  filter(product.review==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(product.review==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(product.review==1) %>%
+  summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments),
+            q1.comments = quantile(as.numeric(comments), 0.25), 
+            q3.comments = quantile(as.numeric(comments), 0.75))
+ 
+
+```
+
+# Celebratory
+<hr>
+<br>
+
+```{r celebrate, echo=FALSE}
+
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(celebratory.video) %>%
+  filter(celebratory.video==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(celebratory.video) %>%
+  filter(celebratory.video==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(celebratory.video) %>%
+  filter(celebratory.video==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(celebratory.video) %>%
+  filter(celebratory.video==1)
+youtube1 %>%
+  filter(celebratory.video==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(celebratory.video==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(celebratory.video==1) %>%
+ summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments))
+ 
+ 
+
+```
+
+
+# Reflective
+<hr>
+<br>
+
+```{r reflective, echo=FALSE}
+
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(reflective) %>%
+  filter(reflective==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(reflective) %>%
+  filter(reflective==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(reflective) %>%
+  filter(reflective==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(reflective) %>%
+  filter(reflective==1)
+youtube1 %>%
+  filter(reflective==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(reflective==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(reflective==1) %>%
+ summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments))
+ 
+```
+ 
+ 
+
+
+# EVALI
+<hr>
+<br>
+
+
+```{r evali, echo=FALSE}
+
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(EVALI) %>%
+  filter(EVALI==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(EVALI) %>%
+  filter(EVALI==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(EVALI) %>%
+  filter(EVALI==1)
+youtube1 %>%
+  filter(EVALI==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(EVALI==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(EVALI==1) %>%
+  summarise(mean.views=mean(as.numeric(views)), mean.likes = mean(as.numeric(likes)), mean.dislikes = mean(as.numeric(dislikes)), mean.comments = mean(as.numeric(comments)) )
+```
+
+<br>
+<br>
+
+# How to
+<hr>
+<br>
+
+
+```{r how.to, echo=FALSE}
+
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(how.to) %>%
+  filter(how.to==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(how.to) %>%
+  filter(how.to==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(how.to) %>%
+  filter(how.to==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(how.to) %>%
+  filter(how.to==1)
+youtube1 %>%
+  filter(how.to==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(how.to==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(how.to==1) %>%
+summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments),
+            q1.comments = quantile(as.numeric(comments), 0.25), 
+            q3.comments = quantile(as.numeric(comments), 0.75))
+ 
+```
+
+<br>
+<br>
+
+# Cautionary video
+<hr>
+<br>
+
+```{r cautionary.video, echo=FALSE}
+
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  count(cautionary.video) %>%
+  filter(cautionary.video==1)
+youtube1 %>%
+  group_by(year) %>%
+  count(cautionary.video) %>%
+  filter(cautionary.video==1)
+youtube1 %>%
+  group_by(country) %>%
+  count(cautionary.video) %>%
+  filter(cautionary.video==1)
+youtube1 %>%
+  group_by(agerestrict) %>%
+  count(cautionary.video) %>%
+  filter(cautionary.video==1)
+youtube1 %>%
+  filter(cautionary.video==1) %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  filter(cautionary.video==1) %>%
+  count(trying.products)
+youtube1 %>%
+  filter(cautionary.video==1) %>%
+   summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(as.numeric(comments)), 
+            max.comments = max(as.numeric(comments)))
+```
+
+<br>
+<br>
+
+
+# Total videos
+<hr>
+<br>
+
+```{r total.video, echo=FALSE}
+youtube1 %>%
+  group_by(year) %>%
+  tally()
+youtube1 %>%
+  group_by(country) %>%
+  tally()
+youtube1 %>%
+  group_by(agerestrict) %>%
+  tally()
+youtube1 %>%
+  mutate( min = as.numeric(videolength_mins)) %>%
+  mutate(sec = as.numeric(videolength_secs)) %>%
+  mutate(length = min*60+sec) %>%
+  summarize(mean.length.mins = mean(length)/60) 
+youtube1 %>%
+  count(trying.products)
+youtube1 %>%
+   summarise(median.views = median(as.numeric(views)), 
+            min.views = min(as.numeric(views)), 
+            max.views = max(as.numeric(views)), 
+            iqr.views = IQR(as.numeric(views)), 
+            q1.views = quantile(as.numeric(views), 0.25), 
+            q3.views = quantile(as.numeric(views), 0.75),
+            sum.views = sum(views),
+            
+            median.likes = median(as.numeric(likes)), 
+            min.likes = min(as.numeric(likes)), 
+            max.likes = max(as.numeric(likes)),
+            q1.likes = quantile(as.numeric(likes), 0.25), 
+            q3.likes = quantile(as.numeric(likes), 0.75), 
+            
+            median.dislikes = median(as.numeric(dislikes)), 
+            min.dislikes = min(as.numeric(dislikes)), 
+            max.dislikes = max(as.numeric(dislikes)), 
+            iqr.dislikes = IQR(as.numeric(dislikes)),
+            q1.dislikes = quantile(as.numeric(dislikes), 0.25), 
+            q3.dislikes = quantile(as.numeric(dislikes), 0.75),
+            
+            median.comments = median(as.numeric(comments)), 
+            min.comments = min(comments), 
+            max.comments = max(comments),
+            q1.comments = quantile(as.numeric(comments), 0.25), 
+            q3.comments = quantile(as.numeric(comments), 0.75))
+ 
+ 
+```
+
+<br>
+<br>
+
+
+# Density rigeline plots
+```{r density, ECHO = FALSE}
+summary(density1$views)
+
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(views), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 15000, scale = 1.0)+
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Number of views") +
+    ylab("Video themes")
+  
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(views), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, stat = "binline", bins = 50, scale = 0.9) +
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Number of views") +
+    ylab("Video themes")
+  
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(likes), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 50, scale = 1.0)+
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Number of likes") +
+    ylab("Video themes")
+
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(dislikes), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 10, scale = 1.0)+
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Number of dislikes") +
+    ylab("Video themes")
+
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(comments), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 10, scale = 1.0)+
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Number of comments") +
+    ylab("Video themes")
+
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(engagement), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, stat = "binline", bins = 50, scale = 0.9) +
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Engagement (num comments/num views)") +
+    ylab("Video themes")
+
+
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(popularity), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, stat = "binline", bins = 50, scale = 0.9) +
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Popularity (num views)") +
+    ylab("Video themes")
+  
+density1 %>%
+  filter(video.cat != "0") %>%
+  ggplot(aes(x = as.numeric(positivity), y = video.cat, fill = video.cat)) +
+  geom_density_ridges(alpha = 0.6, stat = "binline", bins = 50, scale = 0.9) +
+  scale_fill_viridis(discrete = TRUE) +
+  scale_color_viridis(discrete = TRUE)+ 
+  theme_ipsum() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+    xlab("Positivity (num likes/num views)") +
+    ylab("Video themes")
+
+```
+
+ 
+
+# Correlates of number of views
+<hr>
+<br>
+
+
+```{r regression, echo=FALSE}
+youtube3 <- subset(youtube, select = c("views",  "likes", "dislikes","engagement", "positivity","popularity", "advertisement", "product.review", "celebratory.video","reflective","how.to", "cautionary.video", "time.since.upload", "comments", "engagement_type", "popularity_type", "positivity_type" ))
+
+summary(youtube3)
+youtube3$positivity<- as.numeric(youtube3$positivity)
+youtube3$engagement<- as.numeric(youtube3$engagement)
+youtube3$likes<- as.numeric(youtube3$likes)
+youtube3$views<- as.numeric(youtube3$views)
+youtube3$engagement_type <- factor(youtube3$engagement_type)
+
+
+
+```
+
+<br>
+<br>
+
+
+# Engagements
+<hr>
+<br>
+```{r engagement, echo = FALSE}
+a5.mod <-lmrob(engagement~  advertisement , data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~  advertisement , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~advertisement, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(engagement~ product.review, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~ product.review , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~product.review, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(engagement~ celebratory.video, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~ celebratory.video , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~celebratory.video, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(engagement~ reflective, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~ reflective, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~reflective, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(engagement~ how.to, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~ how.to, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~how.to, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(engagement~ cautionary.video, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(engagement+0.00001)~ cautionary.video, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(engagement_type~cautionary.video, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+mylogit <- glm(engagement_type~advertisement + product.review +celebratory.video+reflective+how.to+cautionary.video+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+```
+
+<br>
+<br>
+
+# Popularity
+<hr>
+<br>
+```{r popularity, echo = FALSE}
+a1<-lmrob.control()
+a1$maxit.scale<-3000
+
+a5.mod <-lmrob(popularity~  advertisement +time.since.upload , control = a1, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~  advertisement +time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~advertisement+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(popularity~ product.review+time.since.upload, control = a1, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~ product.review +time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~product.review+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(popularity~ celebratory.video+time.since.upload, setting="KS2014",data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~ celebratory.video +time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~celebratory.video+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(popularity~ reflective+time.since.upload, control = a1,data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~ reflective+time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~reflective+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(popularity~ how.to+time.since.upload, setting="KS2014",data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~ how.to+time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~how.to+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(popularity~ cautionary.video+time.since.upload, control = a1,  data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(popularity)~ cautionary.video+time.since.upload, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(popularity_type~cautionary.video+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+mylogit <- glm(popularity_type~advertisement + product.review +celebratory.video+reflective+how.to+cautionary.video+time.since.upload, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+```
+
+<br>
+<br>
+
+# Positivity
+<hr>
+<br>
+```{r positivity, echo = FALSE}
+a5.mod <-lmrob(positivity~  advertisement , data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~  advertisement , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~advertisement, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(positivity~ product.review, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~ product.review , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~product.review, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(positivity~ celebratory.video, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~ celebratory.video , data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~celebratory.video, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(positivity~ reflective, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~ reflective, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~reflective, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+
+a5.mod <-lmrob(positivity~ how.to, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~ how.to, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~how.to, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+a5.mod <-lmrob(positivity~ cautionary.video, data = youtube3)
+summary(a5.mod)
+
+a.mod <-lm(log(positivity+0.00001)~ cautionary.video, data = youtube3)
+summary(a.mod)
+
+mylogit <- glm(positivity_type~cautionary.video, data = youtube3, family = "binomial")
+summary(mylogit)
+exp(cbind(OR = coef(mylogit), confint(mylogit)))
+
+```
+
+
